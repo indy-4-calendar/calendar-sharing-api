@@ -10,11 +10,7 @@
     "build": "tsc --project tsconfig.json && tscpaths -p tsconfig.json -s src -o dist",
     "dev": "cross-env ENV_FILE=./config/.env.dev ts-node-dev --files -r tsconfig-paths/register ./src/index.ts ",
     "start:dev": "cross-env ENV_FILE=./config/.env.dev node .",
-    "start:prod": "cross-env ENV_FILE=./config/.env.prod node .",
-    "create-course": "ts-node ./scripts/create-course.ts",
-    "create-content": "ts-node ./scripts/create-content.ts",
-    "publish-courses:dev": "cross-env ENV_FILE=./config/.env.dev ts-node ./scripts/publish-courses.ts",
-    "publish-courses:prod": "cross-env ENV_FILE=./config/.env.prod ts-node ./scripts/publish-courses.ts"
+    "start:prod": "cross-env ENV_FILE=./config/.env.prod node ."
   },
   "author": "JS00001",
   "license": "AGPL-3.0-only",
