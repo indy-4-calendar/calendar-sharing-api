@@ -4,6 +4,7 @@ import express, { Request } from 'express';
 
 import authRouter from '@/routes/auth';
 import userRouter from '@/routes/user';
+import calendarsRouter from '@/routes/calendars';
 
 import authMiddleware from '@/middleware/auth';
 import loggingMiddleware from '@/middleware/logging';
@@ -31,6 +32,7 @@ app.use('/api/v1/auth', authRouter);
 const middleware = [authMiddleware.authenticateToken()];
 
 app.use('/api/v1/user', middleware, userRouter);
+app.use('/api/v1/calendars', middleware, calendarsRouter);
 
 // Catch all 404 errors
 app.use((req: Request, res: express.Response) => {

@@ -6,10 +6,12 @@ import jwksClient from 'jwks-rsa';
 import apple from '@/lib/apple';
 import config from '@/constants';
 import User from '@/models/user';
+import Calendar from '@/models/calendar';
 import { IResponse } from '@/lib/request';
 import validators from '@/lib/validators';
 import { ISanitizedUser } from '@/models/@types';
 import { APIError, errorWrapper } from '@/lib/error';
+import { Types } from 'mongoose';
 
 interface AppleTokenSchema {
   /** The issuer of the token */
@@ -130,6 +132,7 @@ export default async (req: Request): Promise<Response> => {
   }
 
   const user = await errorWrapper(10, async () => {
+    // If the user already exists, return them
     if (existingUser) return existingUser;
 
     return User.create({
@@ -138,6 +141,17 @@ export default async (req: Request): Promise<Response> => {
       lastName: fullName?.familyName,
     });
   });
+
+  if (!user.calendars.length) {
+    const personalCalendar = await Calendar.create({
+      name: 'Personal Calendar',
+      description: 'Your personal calendar',
+      color: '#039dfc',
+    });
+
+    user.calendars.push(new Types.ObjectId(personalCalendar._id));
+    await user.save();
+  }
 
   // #endregion
   // #region Create tokens and return the user
