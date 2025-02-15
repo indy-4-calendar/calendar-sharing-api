@@ -18,6 +18,11 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>(
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     refreshToken: { type: String, required: false },
+    calendars: {
+      type: [mongoose.Schema.Types.ObjectId],
+      required: false,
+      default: [],
+    },
 
     /** Notifications */
     notificationPushTokens: { type: [String], required: false, default: [] },

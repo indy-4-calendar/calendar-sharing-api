@@ -17,6 +17,8 @@ export interface IUser {
   refreshToken?: string;
   /** All of the information about the user's notifications */
   notificationPushTokens: string[];
+  /** The calendars that the user has access to */
+  calendars: Types.ObjectId[];
 
   /** METADATA */
   /** The date the user was created */

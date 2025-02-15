@@ -23,7 +23,7 @@ const LogLevel = z.enum([
 ]);
 
 const NodeEnv = z.enum(['dev', 'prod', 'test']);
-const AppBundleId = z.enum(['com.calendarsharing', 'com.calendarsharing.dev']);
+const AppBundleId = z.enum(['com.calendarsharing']);
 
 const ConfigSchema = z.object({
   /** The applications core information  */
@@ -95,8 +95,7 @@ const config = ConfigSchema.parse({
   PaginationLimit: env.PAGINATION_LIMIT,
   MinimumClientVersion: '1.0.80',
   LatestClientVersion: '1.0.80',
-  AppBundleId:
-    env.NODE_ENV === 'prod' ? 'com.calendarsharing' : 'com.calendarsharing.dev',
+  AppBundleId: 'com.calendarsharing',
 });
 
 export default config;
