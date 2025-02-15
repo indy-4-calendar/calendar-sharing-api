@@ -6,26 +6,23 @@ import Event from '@/models/event';
 import Calendar from '@/models/calendar';
 import { IResponse } from '@/lib/request';
 import validators from '@/lib/validators';
-import { ICalendar, IEvent } from '@/models/@types';
 import { APIError, errorWrapper } from '@/lib/error';
 
-type Response = IResponse<{
-  calendar: ICalendar;
-  events: IEvent[];
-}>;
+type Response = IResponse<{}>;
 
 /**
- * Endpoint:     GET /api/v1/calendars/:id
- * Description:  Get a calendar and its events
+ * Endpoint:     DELETE /api/v1/calendars/:id/events
+ * Description:  Delete an event from a calendar
  */
 export default async (req: Request): Promise<Response> => {
   const user = req.user!;
 
   const schema = z.object({
     id: validators.objectId,
+    event: validators.objectId,
   });
 
-  const params = schema.safeParse(req.params);
+  const params = schema.safeParse({ ...req.params, ...req.body });
 
   if (params.success === false) {
     throw new APIError({
@@ -36,6 +33,7 @@ export default async (req: Request): Promise<Response> => {
   }
 
   const id = new Types.ObjectId(params.data.id);
+  const eventID = new Types.ObjectId(params.data.event);
 
   if (!user.calendars.includes(id)) {
     throw new APIError({
@@ -57,15 +55,24 @@ export default async (req: Request): Promise<Response> => {
     });
   }
 
-  const events = await errorWrapper(4, () => {
-    return Event.find({ calendar: id });
+  const event = await errorWrapper(4, () => {
+    return Event.findOne({ _id: eventID, calendar: id });
+  });
+
+  if (!event) {
+    throw new APIError({
+      type: 'NOT_FOUND',
+      traceback: 4,
+      error: `Event with id ${eventID} not found in calendar with id ${id}`,
+    });
+  }
+
+  await errorWrapper(5, () => {
+    return event.deleteOne();
   });
 
   const response: Response = {
-    data: {
-      calendar,
-      events,
-    },
+    data: {},
   };
 
   return response;

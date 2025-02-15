@@ -3,29 +3,32 @@ import { Types } from 'mongoose';
 import { Request } from 'express';
 
 import Event from '@/models/event';
+import { IEvent } from '@/models/@types';
 import Calendar from '@/models/calendar';
 import { IResponse } from '@/lib/request';
 import validators from '@/lib/validators';
-import { ICalendar, IEvent } from '@/models/@types';
 import { APIError, errorWrapper } from '@/lib/error';
 
 type Response = IResponse<{
-  calendar: ICalendar;
-  events: IEvent[];
+  event: IEvent;
 }>;
 
 /**
- * Endpoint:     GET /api/v1/calendars/:id
- * Description:  Get a calendar and its events
+ * Endpoint:     POST /api/v1/calendars/:id
+ * Description:  Add an event to a calendar
  */
 export default async (req: Request): Promise<Response> => {
   const user = req.user!;
 
   const schema = z.object({
     id: validators.objectId,
+    name: validators.string,
+    description: validators.string,
+    color: validators.color,
+    date: validators.date,
   });
 
-  const params = schema.safeParse(req.params);
+  const params = schema.safeParse({ ...req.params, ...req.body });
 
   if (params.success === false) {
     throw new APIError({
@@ -57,14 +60,19 @@ export default async (req: Request): Promise<Response> => {
     });
   }
 
-  const events = await errorWrapper(4, () => {
-    return Event.find({ calendar: id });
+  const event = await errorWrapper(4, () => {
+    return Event.create({
+      calendar: id,
+      name: params.data.name,
+      description: params.data.description,
+      color: params.data.color,
+      date: new Date(params.data.date),
+    });
   });
 
   const response: Response = {
     data: {
-      calendar,
-      events,
+      event,
     },
   };
 

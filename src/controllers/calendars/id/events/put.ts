@@ -3,29 +3,33 @@ import { Types } from 'mongoose';
 import { Request } from 'express';
 
 import Event from '@/models/event';
+import { IEvent } from '@/models/@types';
 import Calendar from '@/models/calendar';
 import { IResponse } from '@/lib/request';
 import validators from '@/lib/validators';
-import { ICalendar, IEvent } from '@/models/@types';
 import { APIError, errorWrapper } from '@/lib/error';
 
 type Response = IResponse<{
-  calendar: ICalendar;
-  events: IEvent[];
+  event: IEvent;
 }>;
 
 /**
- * Endpoint:     GET /api/v1/calendars/:id
- * Description:  Get a calendar and its events
+ * Endpoint:     PUT /api/v1/calendars/:id/events
+ * Description:  Update an event in a calendar
  */
 export default async (req: Request): Promise<Response> => {
   const user = req.user!;
 
   const schema = z.object({
     id: validators.objectId,
+    event: validators.objectId,
+    name: validators.string.optional(),
+    description: validators.string.optional(),
+    color: validators.color.optional(),
+    date: validators.date.optional(),
   });
 
-  const params = schema.safeParse(req.params);
+  const params = schema.safeParse({ ...req.params, ...req.body });
 
   if (params.success === false) {
     throw new APIError({
@@ -36,6 +40,7 @@ export default async (req: Request): Promise<Response> => {
   }
 
   const id = new Types.ObjectId(params.data.id);
+  const eventID = new Types.ObjectId(params.data.event);
 
   if (!user.calendars.includes(id)) {
     throw new APIError({
@@ -57,14 +62,41 @@ export default async (req: Request): Promise<Response> => {
     });
   }
 
-  const events = await errorWrapper(4, () => {
-    return Event.find({ calendar: id });
+  const event = await errorWrapper(4, () => {
+    return Event.findOne({ _id: eventID, calendar: id });
+  });
+
+  if (!event) {
+    throw new APIError({
+      type: 'NOT_FOUND',
+      traceback: 4,
+      error: `Event with id ${eventID} not found`,
+    });
+  }
+
+  if (params.data.name !== undefined) {
+    event.name = params.data.name;
+  }
+
+  if (params.data.description !== undefined) {
+    event.description = params.data.description;
+  }
+
+  if (params.data.color !== undefined) {
+    event.color = params.data.color;
+  }
+
+  if (params.data.date !== undefined) {
+    event.date = new Date(params.data.date);
+  }
+
+  await errorWrapper(5, () => {
+    return event.save();
   });
 
   const response: Response = {
     data: {
-      calendar,
-      events,
+      event,
     },
   };
 
