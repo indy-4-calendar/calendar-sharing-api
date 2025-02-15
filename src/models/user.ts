@@ -87,6 +87,7 @@ userSchema.methods.sanitize = function (this: IUserSchema) {
     lastName: this.lastName,
     email: this.email,
     notificationPushTokens: this.notificationPushTokens,
+    calendars: this.calendars,
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
   };

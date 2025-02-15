@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import jwt from 'jsonwebtoken';
+import { Types } from 'mongoose';
 import { Request } from 'express';
 import jwksClient from 'jwks-rsa';
 
@@ -11,7 +12,6 @@ import { IResponse } from '@/lib/request';
 import validators from '@/lib/validators';
 import { ISanitizedUser } from '@/models/@types';
 import { APIError, errorWrapper } from '@/lib/error';
-import { Types } from 'mongoose';
 
 interface AppleTokenSchema {
   /** The issuer of the token */

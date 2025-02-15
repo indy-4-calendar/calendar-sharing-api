@@ -40,6 +40,8 @@ export interface ISanitizedUser {
   lastName: string;
   /** The email of the user's user */
   email: string;
+  /** The list of calendars */
+  calendars: Types.ObjectId[];
 
   /** METADATA */
   /** The date the user was created */

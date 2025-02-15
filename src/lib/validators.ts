@@ -22,6 +22,30 @@ const validators = {
         message: 'ID must be a valid ObjectID, UUID, or string',
       }),
     ),    
+
+  /**
+   * Color hex
+   */
+  color: z
+    .string({
+      required_error: 'Color is required',
+      invalid_type_error: 'Color must be a string',
+    })
+    .regex(/^#(?:[0-9a-fA-F]{3}){1,2}$/, {
+      message: 'Invalid color',
+    }),
+
+    /**
+     * Strings
+     */
+  string: z
+    .string({
+      required_error: 'String is required',
+      invalid_type_error: 'String must be a string',
+    })
+    .min(1, {
+      message: 'String must be at least 1 character',
+    }),
     
   /**
    * Validates user first names
