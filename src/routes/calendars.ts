@@ -14,6 +14,9 @@ calendarsRouter.post('/', calendarsController.postCalendars);
 /** Get a specific calendar */
 calendarsRouter.get('/:id', calendarsController.getCalendar);
 
+/** Join a specific calendar */
+calendarsRouter.post('/:id', calendarsController.postCalendar);
+
 /** Create a new event in a calendar */
 calendarsRouter.post('/:id/events', calendarsController.postEvent);
 

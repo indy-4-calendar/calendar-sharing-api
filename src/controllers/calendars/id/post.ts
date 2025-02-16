@@ -15,8 +15,8 @@ type Response = IResponse<{
 }>;
 
 /**
- * Endpoint:     GET /api/v1/calendars/:id
- * Description:  Get a calendar and its events
+ * Endpoint:     POST /api/v1/calendars/:id
+ * Description:  Join a calendar from a new account
  */
 export default async (req: Request): Promise<Response> => {
   const user = req.user!;
@@ -37,11 +37,11 @@ export default async (req: Request): Promise<Response> => {
 
   const id = new Types.ObjectId(params.data.id);
 
-  if (!user.calendars.includes(id)) {
+  if (user.calendars.includes(id)) {
     throw new APIError({
-      type: 'NOT_FOUND',
+      type: 'BAD_REQUEST',
       traceback: 2,
-      error: `Calendar with id ${id} not found`,
+      error: `You are already a member of this calendar`,
     });
   }
 
@@ -59,6 +59,11 @@ export default async (req: Request): Promise<Response> => {
 
   const events = await errorWrapper(4, () => {
     return Event.find({ calendar: id });
+  });
+
+  await errorWrapper(5, () => {
+    user.calendars.push(id);
+    return user.save();
   });
 
   const response: Response = {
