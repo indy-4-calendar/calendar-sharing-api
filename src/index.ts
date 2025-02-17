@@ -1,4 +1,5 @@
 import app from '@/app';
+import cron from '@/cron';
 import config from '@/constants';
 import database from '@/database';
 import logger from '@/lib/logger';
@@ -18,6 +19,11 @@ database.connect().then(async () => {
     logger.info(`Server environment: ${config.NodeEnv}`);
     logger.info(`Server listening on port: ${config.Port}`);
   });
+
+  /**
+   * Start the cron jobs for the application to run
+   */
+  cron.startJobs();
 
   /**
    * If we are in a dev env, we want to be able to clear the console by

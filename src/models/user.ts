@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
+import { ExpoPushMessage } from 'expo-server-sdk';
 
 import {
   type IUserMethods,
@@ -10,6 +11,7 @@ import {
 
 import jwt from '@/lib/jwt';
 import config from '@/constants';
+import expo from '@/lib/expo';
 
 const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>(
   {
@@ -25,7 +27,7 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>(
     },
 
     /** Notifications */
-    notificationPushTokens: { type: [String], required: false, default: [] },
+    notificationPushToken: { type: String, required: false },
   },
   { timestamps: true },
 );
@@ -76,6 +78,30 @@ userSchema.methods.createRefreshToken = async function (this: IUserSchema) {
 };
 
 /**
+ * Send notification
+ * This method sends a notification to all of the user's push tokens.
+ */
+userSchema.methods.sendNotification = async function (
+  this: IUserSchema,
+  { title, body },
+) {
+  if (this.notificationPushToken) {
+    const pushNotification = {
+      title,
+      body,
+    };
+
+    const message: ExpoPushMessage[] = [
+      { to: this.notificationPushToken, ...pushNotification },
+    ];
+
+    // Create chunks of 100 messages to send, then send them
+    const chunks = expo.chunkPushNotifications(message);
+    await Promise.all(chunks.map((c) => expo.sendPushNotificationsAsync(c)));
+  }
+};
+
+/**
  * Sanitize
  * Remove sensitive information from user object before using it
  * Used for client-side responses
@@ -86,7 +112,6 @@ userSchema.methods.sanitize = function (this: IUserSchema) {
     firstName: this.firstName,
     lastName: this.lastName,
     email: this.email,
-    notificationPushTokens: this.notificationPushTokens,
     calendars: this.calendars,
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,

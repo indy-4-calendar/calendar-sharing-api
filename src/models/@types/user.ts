@@ -16,7 +16,7 @@ export interface IUser {
   /** The refresh token of the user */
   refreshToken?: string;
   /** All of the information about the user's notifications */
-  notificationPushTokens: string[];
+  notificationPushToken?: string;
   /** The calendars that the user has access to */
   calendars: Types.ObjectId[];
 
@@ -62,6 +62,8 @@ export interface IUserMethods {
   createRefreshToken: () => Promise<string>;
   /** Check if the passed refresh token is a valid session for the user */
   validateRefreshToken: (refreshTokenId: string) => Promise<boolean>;
+  /** Send a push notification to a user */
+  sendNotification: (props: { title: string; body: string }) => Promise<void>;
 }
 
 // The methods and properties for a fetched document. This will be the most commonly used type

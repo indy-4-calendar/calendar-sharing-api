@@ -14,7 +14,7 @@ export default async (req: Request): Promise<Response> => {
 
   await errorWrapper(0, () => {
     user.refreshToken = undefined;
-    user.notificationPushTokens = [];
+    user.notificationPushToken = undefined;
     return user.save();
   });
 
