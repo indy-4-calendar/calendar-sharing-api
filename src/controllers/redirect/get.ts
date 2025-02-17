@@ -23,5 +23,5 @@ export default async (req: Request, res: Response) => {
     });
   }
 
-  res.redirect(`daylink://link/${params.data.id}`);
+  res.redirect(`daylink://main/home?id=${params.data.id}`);
 };
