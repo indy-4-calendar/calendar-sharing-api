@@ -9,6 +9,7 @@ import calendarsRouter from '@/routes/calendars';
 import authMiddleware from '@/middleware/auth';
 import loggingMiddleware from '@/middleware/logging';
 import { APIError, ErrorHandler } from '@/lib/error';
+import redirectRouter from './routes/redirect';
 
 const app: express.Application = express();
 
@@ -27,6 +28,7 @@ app.get('/', (_, res) => {
 // Consumer Routes without 'general' middleware. ALL routes here
 // MUST implement all of their own middleware including auth, rate limits, etc.
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/redirect', redirectRouter);
 
 // Consumer Routes with auth, tracking, rate limits, etc. all in one stack
 const middleware = [authMiddleware.authenticateToken()];

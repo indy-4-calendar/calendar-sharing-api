@@ -37,14 +37,6 @@ export default async (req: Request): Promise<Response> => {
 
   const id = new Types.ObjectId(params.data.id);
 
-  if (!user.calendars.includes(id)) {
-    throw new APIError({
-      type: 'NOT_FOUND',
-      traceback: 2,
-      error: `Calendar with id ${id} not found`,
-    });
-  }
-
   const calendar = await errorWrapper(3, () => {
     return Calendar.findById(id);
   });
